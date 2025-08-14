@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class ThirdPersonController : MonoBehaviour
 {
+    [Header("Animation")]
+    public Animator animator;
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float turnSmoothTime = 0.1f;
@@ -57,6 +59,10 @@ public class ThirdPersonController : MonoBehaviour
         {
             resourceManager = FindObjectOfType<FloatResourceManager>();
         }
+        if (animator == null)
+        {
+            animator = GetComponent<Animator>();
+        }
     }
 
     private Vector3 GetMovementDirection(Vector3 inputDirection)
@@ -87,6 +93,11 @@ public class ThirdPersonController : MonoBehaviour
             wasLastJumpOnBeat = false;
             wasLastDashOnBeat = false;
             isFlying = false;
+            if (animator != null)
+            {
+                animator.SetBool("Jump", false);
+                animator.SetBool("Fly", false);
+            }
         }
 
         // Movement input
@@ -104,6 +115,18 @@ public class ThirdPersonController : MonoBehaviour
             transform.rotation = Quaternion.Euler(0f, angle, 0f);
 
             controller.Move(moveDir * moveSpeed * Time.deltaTime);
+            if (animator != null)
+            {
+                //animator.SetBool("Grounded", false);
+            }
+        }
+        else if (isGrounded)
+        {
+            if (animator != null)
+            {
+                //animator.SetBool("Grounded", true);
+                animator.Play("Idle");
+            }
         }
 
         // Jump on beat
@@ -115,6 +138,10 @@ public class ThirdPersonController : MonoBehaviour
                 lastJumpTime = Time.time;
                 wasLastJumpOnBeat = true;
                 resourceManager?.OnBeatActionPerformed();
+                if (animator != null)
+                {
+                    animator.SetBool("Jump", true);
+                }
             }
         }
 
@@ -141,6 +168,10 @@ public class ThirdPersonController : MonoBehaviour
                 StartCoroutine(PerformDash(flyDirection));
                 lastDashTime = Time.time;
                 resourceManager?.OnBeatActionPerformed();
+                if (animator != null)
+                {
+                    animator.SetBool("Fly", true);
+                }
             }
         }
 
@@ -150,10 +181,18 @@ public class ThirdPersonController : MonoBehaviour
             isFlying = true;
             flyDirection = cameraTransform.forward.normalized;
             resourceManager.ConsumeResource(flyResourceDrainRate * Time.deltaTime);
+            if (animator != null)
+            {
+                animator.SetBool("Fly", true);
+            }
         }
         else
         {
             isFlying = false;
+            if (animator != null)
+            {
+                animator.SetBool("Fly", false);
+            }
         }
 
         // Apply movement and gravity

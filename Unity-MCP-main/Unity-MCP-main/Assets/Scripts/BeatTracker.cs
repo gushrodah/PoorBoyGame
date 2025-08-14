@@ -8,6 +8,7 @@ public class BeatTracker : MonoBehaviour
     public float bpm = 120f;
     public float hitWindowSeconds = 0.15f; // Timing window for input accuracy
     public KeyCode inputKey = KeyCode.Space;
+    public Animator animator;
 
     [Header("Audio Settings")]
     public AudioSource audioSource; // Assign an AudioSource in the Inspector
@@ -41,6 +42,10 @@ public class BeatTracker : MonoBehaviour
         {
             lastBeatTime = nextBeatTime;
             nextBeatTime += secPerBeat;
+            if (animator != null)
+            {
+                animator.Play("Beat");
+            }
         }
     }
 
